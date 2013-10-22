@@ -81,7 +81,21 @@ module Btce
       "ppc_btc" => 4,
       "ftc_btc" => 4
     }
-    KEY = YAML::load File.open 'btce-api-key.yml'    
+    
+    def self.btce_key=(key)
+      @btce_key = key
+    end
+    def self.btce_key
+      @btce_key
+    end
+    def self.btce_secret=(secret)
+      @btce_secret = secret
+    end
+    def self.btce_secret
+      @btce_secret
+    end
+
+    #KEY = YAML::load File.open '~/.btce-api-key.yml'    
 
     class << self
       def get_https(url, params = nil, sign = nil)
@@ -95,7 +109,7 @@ module Btce
         else
           # If sending params, then we want a post request for authentication.
           request = Net::HTTP::Post.new uri.request_uri
-          request.add_field "Key", API::KEY['key']
+          request.add_field "Key", API.btce_key
           request.add_field "Sign", sign
           request.set_form_data params
         end
@@ -255,8 +269,7 @@ module Btce
     class << self
       def sign(params)
         # The digest needs to be created.
-        hmac = OpenSSL::HMAC.new(API::KEY['secret'],
-                                 OpenSSL::Digest::SHA512.new)
+        hmac = OpenSSL::HMAC.new(API.btce_secret, OpenSSL::Digest::SHA512.new)
         params = params
           .collect {|k,v| "#{k}=#{v}"}
           .join('&')
